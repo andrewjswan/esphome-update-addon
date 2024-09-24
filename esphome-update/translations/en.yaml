@@ -1,0 +1,15 @@
+configuration:
+  esphome_domain_name:
+    name: ESPHome Add-on Domain Name
+    description: Domain name of the ESPHome Add-on, for performing firmware check and assembly.
+
+  update_interval:
+    name: Update interval
+    description: Period for checking ESPHome configurations for updates
+
+  http_ota:
+    name: Only with HTTP Request OTA
+    description: Store in storage, only firmware with HTTP Request OTA support
+
+  log_level:
+    name: Log Level

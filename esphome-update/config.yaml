@@ -1,0 +1,49 @@
+---
+name: ESPHome Update
+version: 2024.9.1
+slug: esphome-update
+description: ESPHome Update Server.
+url: https://github.com/andrewjswan/esphome-update/
+
+codenotary: notary@home-assistant.io
+
+arch:
+  - amd64
+  - aarch64
+
+# image: ghcr.io/andrewjswan/esphome-update-addon-{arch}
+
+startup: application
+boot: auto
+init: false
+docker_api: true
+ingress: true
+
+map:
+  - addons:rw
+  - all_addon_configs:rw
+  - config:rw
+  - share:rw
+  - ssl:rw
+
+homeassistant: 2024.1.0
+
+panel_icon: mdi:poker-chip
+panel_title: ESPHome Update
+
+ports:
+  5500/tcp: 5500
+
+ports_description:
+  5500/tcp: "Web Interface"
+
+watchdog: "tcp://[HOST]:[PORT:5500]/ping"
+
+options:
+  esphome_domain_name: "5c53de3b_esphome"
+
+schema:
+  esphome_domain_name: str?
+  update_interval: int(1,60)?
+  http_ota: bool?
+  log_level: list(DEBUG|INFO|WARNING|ERROR|CRITICAL)?

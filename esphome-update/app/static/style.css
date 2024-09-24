@@ -1,0 +1,156 @@
+﻿:root {
+  --primary-color: white;
+  --secondary-color: rgb(61, 68, 73);
+  --highlight-color: #3282b8;
+
+  --dt-status-ok-color: greenyellow;
+  --dt-status-warning-color: lightsalmon;
+  --dt-status-error-color: lightred;
+  --dt-status-online-color: greenyellow;
+  --dt-status-offline-color: lightgray;
+
+  --dt-status-esp32-color: greenyellow;
+  --dt-status-esp8266-color: lightsalmon;
+
+  --dt-padding: 5px;
+
+  --dt-background-color-container: #2a3338;
+  --dt-border-color: var(--secondary-color);
+  --dt-bg-color: var(--highlight-color);
+  --dt-text-color: var(--primary-color);
+  --dt-bg-active-button: var(--highlight-color);
+  --dt-text-color-button: var(--primary-color);
+  --dt-text-color-active-button: var(--primary-color);
+  --dt-hover-cell-color: var(--highlight-color);
+  --dt-even-row-color: var(--secondary-color);
+  --dt-focus-color: var(--highlight-color);
+  --dt-input-background-color: var(--secondary-color);
+  --dt-input-color: var(--primary-color);
+}
+
+body {
+  background-color: var(--dt-background-color-container);
+  font-family: sans-serif;
+  color: var(--dt-text-color);
+  font-size: 12px;
+}
+
+.material-icons {
+  font-size: 16px;
+}
+
+header {
+  border-bottom: solid 1px var(--dt-border-color);
+  padding: var(--dt-padding);
+  display: flex;
+  align-items: baseline;
+  font-weight: bolder;
+  font-size: 14px;
+}
+
+footer {
+  padding: var(--dt-padding);
+  display: flex;
+  align-items: baseline;
+  font-size: 10px;
+}
+
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: sans-serif;
+  font-size: 12px;
+  padding: var(--dt-padding) var(--dt-padding);
+}
+
+
+th, td {
+  padding: var(--dt-padding) var(--dt-padding);
+}
+
+th {
+  font-weight: bolder;
+  text-align: left;
+  border-bottom: solid 1px var(--dt-border-color);
+}
+
+td {
+  border-bottom: solid 1px var(--dt-border-color);
+}
+
+tbody tr:nth-child(even) {
+  background-color: var(--dt-even-row-color);
+}
+
+tbody tr:hover {
+  background-color: var(--dt-hover-cell-color);
+}
+
+tbody tr .ok::after,
+tbody tr .warning::after,
+tbody tr .error::after,
+tbody tr .online::after,
+tbody tr .offline::after {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+tbody tr .ok::after {
+  content: "OK";
+  color: var(--dt-status-ok-color);
+}
+
+tbody tr .warning::after {
+  content: "Warning";
+  color: var(--dt-status-warning-color);
+}
+
+tbody tr .error::after {
+  content: "Error";
+  color: var(--dt-status-error-color);
+}
+
+tbody tr .online::after {
+  content: "Online";
+  color: var(--dt-status-online-color);
+}
+
+tbody tr .offline::after {
+  content: "Offline";
+  color: var(--dt-status-offline-color);
+}
+
+tr .ok::before,
+tr .warning::before,
+tr .error::before,
+tr .online::before,
+tr .offline::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 10px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+tbody tr .ok::before {
+  background-color: var(--dt-status-ok-color);
+}
+
+tbody tr .warning::before {
+  background-color: var(--dt-status-warning-color);
+}
+
+tbody tr .error::before {
+  background-color: var(--dt-status-error-color);
+}
+
+tbody tr .online::before {
+  background-color: var(--dt-status-online-color);
+}
+
+tbody tr .offline::before {
+  background-color: var(--dt-status-offline-color);
+}
