@@ -209,7 +209,7 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
 
     esphome_folder_md5 = folder_md5(ESPHOME_FOLDER)
     if esphome_folder_md5 == addon_config["esphome_hash"]:
-        LOGGER.debug("ESPHome config folder %s not changed...", ESPHOME_FOLDER)
+        LOGGER.debug("ESPHome config folder %s not changed, skip...", ESPHOME_FOLDER)
         return
     addon_config["esphome_hash"] = esphome_folder_md5
 
@@ -244,11 +244,12 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                     datetime.datetime.now(tz=datetime.UTC)
                 ).astimezone().strftime("%Y-%m-%d %H:%M:%S")
                 need_build = True
-                LOGGER.debug("Need build: New configuration")
+                LOGGER.debug("Need build: Found new device configuration")
 
             if esphome_devices[file]["build"] != BUILD_OK:
                 need_build = True
-                LOGGER.debug("Need build: Previous build status != Ok")
+                if esphome_devices[file]["build"] != BUILD_NEW:
+                    LOGGER.debug("Need build: Previous build status: Failure")
 
             mod_time = (
                 (datetime.datetime.fromtimestamp(Path(file_path).stat().st_mtime, tz=datetime.UTC))
@@ -303,7 +304,11 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                                     + version
                                 )
                                 need_build = True
-                                LOGGER.debug("Need build: Configuration version changed")
+                                LOGGER.debug(
+                                    "Need build: Configuration version changed: %s - %s",
+                                    esphome_devices[file]["version"],
+                                    version,
+                                )
                             esphome_devices[file]["version"] = version
                         else:
                             esphome_devices[file]["version"] = addon_config["esphome_version"]
@@ -338,7 +343,7 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                 LOGGER.exception("Error:", exc_info=e)
 
             if need_build and Path(MAKE_FILE).is_file():
-                file_info["status"] = STATUS_BUILD
+                esphome_devices[file]["status"] = STATUS_BUILD
                 if not addon_config["only_http_ota"] or (
                     addon_config["only_http_ota"] and esphome_devices[file]["http_ota"]
                 ):
@@ -359,9 +364,9 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                 )
                 if build.returncode == 0:
                     esphome_devices[file]["esphome"] = addon_config["esphome_version"]
+                    LOGGER.debug("Build complete!")
                     if need_store == "":
                         esphome_devices[file]["build"] = BUILD_OK
-                        LOGGER.debug("Ok!")
                     elif move_dir(
                         ESPHOME_UPDATE,
                         ESPHOME_UPDATE_STORAGE,
@@ -395,15 +400,15 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                             outfile.write(json_manifest)
 
                         esphome_devices[file]["build"] = BUILD_OK
-                        LOGGER.debug("Ok!")
+                        LOGGER.debug("Store complete.")
                     else:
                         esphome_devices[file]["build"] = BUILD_COPY
-                        LOGGER.debug("Copy error!")
+                        LOGGER.debug("Store ERROR!")
                 else:
                     esphome_devices[file]["build"] = build.returncode
                     LOGGER.debug(build.stderr.decode("utf-8"))
 
-                file_info["status"] = STATUS_COMPLETE
+                esphome_devices[file]["status"] = STATUS_COMPLETE
 
             if (
                 addon_config["auto_clean"]
