@@ -27,6 +27,11 @@ Add the repository URL under **Supervisor → Add-on Store** in your Home Assist
 
 <br />
 
+> [!IMPORTANT]
+> For the **ESPHome Update** add-on to work, it must be given `full access` (turn off the `protected mode`) option, and the **ESPHome** add-on must be installed and running.
+
+<br />
+
 > [!TIP]
 > ESPHome [configuration](https://github.com/andrewjswan/esphome-configuration)
 
