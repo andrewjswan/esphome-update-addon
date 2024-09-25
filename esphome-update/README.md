@@ -7,6 +7,7 @@
 [![ha addon_badge](https://img.shields.io/badge/HA-Addon-blue.svg)](https://developers.home-assistant.io/docs/add-ons)
 [![ESPHome Update](https://img.shields.io/badge/ESPHome-Update-blue.svg)](https://github.com/andrewjswan/esphome-update-addon/)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/andrewjswan/esphome-update-addon/build.yml?logo=github)](https://github.com/andrewjswan/esphome-update-addon/actions)
+[![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/andrewjswan/esphome-update-addon?include_prereleases)](https://github.com/andrewjswan/esphome-update-addon/blob/master/esphome-update/CHANGELOG.md)
 [![GitHub](https://img.shields.io/github/license/andrewjswan/esphome-update-addon?color=blue)](https://github.com/andrewjswan/esphome-update-addon/blob/master/LICENSE)
 [![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
