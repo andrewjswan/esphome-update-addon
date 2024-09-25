@@ -5,10 +5,14 @@
     <tr>
     % for key, value in data.items():
       % if key!='md5':
-      <%
-        key = key.upper().strip()
-      %>
-      <td>{{key}}</td>
+        % if key=='status':
+        <th title="Status"></th>
+        % else:
+        <%
+          key = key.upper().strip()
+        %>
+        <th>{{key}}</th>
+        % end
       % end
     % end
     </tr>
@@ -22,25 +26,32 @@
     % for key, value in data.items():
       % if key!='md5':
         % if key=='http_ota':
+          <td>
           % if value==True:
-          <td><span class="online"></td>
+          <span class="online">
           % else:
-          <td><span class="offline"></td>
+          <span class="offline">
           % end
+          </td>
+        % elif key=='build':
+          <td title="{{value}}">
+          % if value==0:
+          <span class="ok">
+          % elif value<0:
+          <span class="warning">
+          % else:
+          <span class="error">
+          % end
+          </td>
+        % elif key=='file':
+          <%
+            value = value.split("/")[-1]
+          %>
+          <td><a href="config/{{value}}">{{value}}</a></td>
+        % elif key=='status':
+          <td title="{{value}}"><span class="{{value}}"></td>
         % else:
-          % if key=='build':
-            % if value==0:
-            <td><span class="ok"></td>
-            % else:
-              % if value<0:
-              <td><span class="warning"></td>
-              % else:
-              <td><span class="error"></td>
-              % end
-            % end
-          % else:
           <td>{{value}}</td>
-          % end
         % end
       % end
     % end

@@ -12,11 +12,11 @@ import re
 import shutil
 import subprocess
 import time
-from multiprocessing import Process
 from pathlib import Path
+from threading import Thread
 
 from bottle import route, run, static_file, template
-from esphome.config import read_config
+from esphome.config import dump_dict, read_config
 from esphome.core import CORE
 
 ESPHOME_FOLDER = "/config/esphome/"
@@ -34,6 +34,10 @@ BUILD_OK = 0
 BUILD_NEW = -1
 BUILD_COPY = -5
 
+STATUS_NEW = "new"
+STATUS_BUILD = "build"
+STATUS_COMPLETE = "complete"
+
 PROJECT_LEN = 2
 
 ESPHOME = "esphome"
@@ -45,7 +49,7 @@ addon_config = {
     "esphome_version": "",
     "esphome_hash": "",
     "update_interval": 900,
-    "only_http_ota": False,
+    "only_http_ota": True,
     "auto_clean": True,
 }
 
@@ -102,18 +106,29 @@ def folder_md5(directory: str) -> str:
         return "-1"
 
     try:
-        for file in sorted(os.listdir(ESPHOME_FOLDER)):
-            if file.lower().endswith(".yaml"):
-                LOGGER.debug("Hashing: %s", file)
-                with (Path(ESPHOME_FOLDER) / file).open(mode="rb") as f:
-                    for chunk in iter(lambda: f.read(4096), b""):
-                        md5_hash.update(chunk)
+        for root, _, files in os.walk(ESPHOME_FOLDER):
+            for file in sorted(files):
+                if file.lower().endswith(".yaml"):
+                    LOGGER.debug("Hashing: %s/%s", root, file)
+                    with (Path(root) / file).open(mode="rb") as f:
+                        for chunk in iter(lambda: f.read(4096), b""):
+                            md5_hash.update(chunk)
 
     except Exception as e:
         LOGGER.exception("Error:", exc_info=e)
         return "-2"
 
     return md5_hash.hexdigest()
+
+
+def config_md5(config: dict) -> str:
+    """Calculate MD5 for Folder."""
+    digest = {}
+    for path, domain in sorted(config.output_paths):
+        digest["path"] = path
+        digest["domain"] = domain
+        digest["dump"] = sorted(dump_dict(config, path)[0].splitlines())
+    return hashlib.md5(repr(digest).encode("utf-8")).hexdigest()  # noqa: S324
 
 
 def logger_init() -> None:
@@ -150,7 +165,7 @@ def load_config() -> None:
 def esphome_version() -> None:
     """Get ESPHome version."""
     esphome = subprocess.run(  # noqa: S603
-        [VERSION_FILE, addon_config["esphome_domain"]],
+        ["docker", "exec", "addon_" + addon_config["esphome_domain"], "esphome", "version"],  # noqa: S607
         capture_output=True,
         check=False,
     )
@@ -161,6 +176,8 @@ def esphome_version() -> None:
         ).group()
         LOGGER.debug("ESPHome: %s Version: %s", addon_config["esphome_domain"], esphome_version)
         addon_config["esphome_version"] = esphome_version
+    else:
+        addon_config["esphome_version"] = ""
 
 
 def load_devices() -> None:
@@ -174,6 +191,8 @@ def load_devices() -> None:
 
 def save_devices() -> None:
     """Save ESP configuration list."""
+    global esphome_devices  # noqa: PLW0602
+
     json_object = json.dumps(esphome_devices, indent=2)
     with Path(CONFIGS_FILE).open(mode="w") as outfile:
         outfile.write(json_object)
@@ -183,13 +202,16 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
     """ESPHome Update Main work function."""
     global esphome_devices  # noqa: PLW0602
 
+    esphome_version()
+    if not addon_config["esphome_version"]:
+        LOGGER.debug("Look like ESPHome Add-on not started")
+        return
+
     esphome_folder_md5 = folder_md5(ESPHOME_FOLDER)
     if esphome_folder_md5 == addon_config["esphome_hash"]:
         LOGGER.debug("ESPHome config folder %s not changed...", ESPHOME_FOLDER)
         return
     addon_config["esphome_hash"] = esphome_folder_md5
-
-    esphome_version()
 
     for file in sorted(os.listdir(ESPHOME_FOLDER)):
         if file.lower().endswith(".yaml") and not file.lower().endswith("secrets.yaml"):
@@ -203,6 +225,7 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
 
             if file not in esphome_devices:
                 file_info = {}
+                file_info["status"] = STATUS_NEW
                 file_info["name"] = ""
                 file_info["comment"] = ""
                 file_info["author"] = ""
@@ -239,6 +262,7 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
 
             try:
                 CORE.reset()
+                CORE.verbose = False
                 CORE.config_path = file_path
                 with (
                     contextlib.redirect_stderr(Path(os.devnull).open(mode="w")),
@@ -246,12 +270,15 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                 ):
                     config = read_config({})
                 if config and "esphome" in config:
-                    config_md5 = hashlib.md5(  # noqa: S324
-                        repr(sorted(config.items())).encode("utf-8"),
-                    ).hexdigest()
-                    if config_md5 != esphome_devices[file]["md5"]:
-                        LOGGER.debug("Need build: Configuration MD5 changed")  # need_build = True
-                    esphome_devices[file]["md5"] = config_md5
+                    conf_md5 = config_md5(config)
+                    if conf_md5 != esphome_devices[file]["md5"]:
+                        need_build = True
+                        LOGGER.debug(
+                            "Need build: Configuration MD5 changed %s - %s",
+                            esphome_devices[file]["md5"],
+                            conf_md5,
+                        )
+                    esphome_devices[file]["md5"] = conf_md5
 
                     if "name" in config["esphome"]:
                         esphome_devices[file]["name"] = config["esphome"]["name"]
@@ -311,6 +338,7 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                 LOGGER.exception("Error:", exc_info=e)
 
             if need_build and Path(MAKE_FILE).is_file():
+                file_info["status"] = STATUS_BUILD
                 if not addon_config["only_http_ota"] or (
                     addon_config["only_http_ota"] and esphome_devices[file]["http_ota"]
                 ):
@@ -375,6 +403,8 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                     esphome_devices[file]["build"] = build.returncode
                     LOGGER.debug(build.stderr.decode("utf-8"))
 
+                file_info["status"] = STATUS_COMPLETE
+
             if (
                 addon_config["auto_clean"]
                 and addon_config["only_http_ota"]
@@ -386,10 +416,17 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
     LOGGER.debug("Work done.")
 
 
+def get_data() -> dict:
+    """Get data for index page."""
+    global esphome_devices  # noqa: PLW0602
+    return esphome_devices
+
+
 @route("/")
 def index():  # noqa: ANN201
     """Show index page."""
-    return template("index.tpl", configs=esphome_devices)
+    data = get_data()
+    return template("index.tpl", configs=data, time=time.time())
 
 
 @route("/ping")
@@ -431,7 +468,7 @@ async def main() -> None:
 
     LOGGER.info("ESPHome Update: started...")
 
-    p = Process(target=work_loop)
+    p = Thread(target=work_loop)
     p.start()
 
     run(host="0.0.0.0", port=5500)  # noqa: S104

@@ -1,9 +1,9 @@
 ---
 name: ESPHome Update
-version: 2024.9.1
+version: 2024.9.3
 slug: esphome-update
-description: ESPHome Update Server.
-url: https://github.com/andrewjswan/esphome-update/
+description: ESPHome Update Server
+url: https://github.com/andrewjswan/esphome-update-addon/
 
 codenotary: notary@home-assistant.io
 
@@ -11,7 +11,7 @@ arch:
   - amd64
   - aarch64
 
-# image: ghcr.io/andrewjswan/esphome-update-addon-{arch}
+image: ghcr.io/andrewjswan/esphome-update-addon-{arch}
 
 startup: application
 boot: auto

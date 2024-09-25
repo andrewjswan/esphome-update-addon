@@ -13,6 +13,8 @@
   --dt-status-esp8266-color: lightsalmon;
 
   --dt-padding: 5px;
+  --dt-padding-sm: 3px;
+  --dt-padding-gt: 7px;
 
   --dt-background-color-container: #2a3338;
   --dt-border-color: var(--secondary-color);
@@ -35,13 +37,18 @@ body {
   font-size: 12px;
 }
 
+a, a:visited, a:hover, a:focus, a:active {
+    color: var(--dt-text-color);
+    text-decoration: none;
+}
+
 .material-icons {
   font-size: 16px;
 }
 
 header {
   border-bottom: solid 1px var(--dt-border-color);
-  padding: var(--dt-padding);
+  padding: var(--dt-padding-sm);
   display: flex;
   align-items: baseline;
   font-weight: bolder;
@@ -49,12 +56,16 @@ header {
 }
 
 footer {
-  padding: var(--dt-padding);
+  padding: var(--dt-padding-sm);
   display: flex;
   align-items: baseline;
   font-size: 10px;
 }
 
+header p,
+footer p {
+  margin: 5px;
+}
 
 table {
   border-collapse: collapse;
@@ -64,7 +75,6 @@ table {
   padding: var(--dt-padding) var(--dt-padding);
 }
 
-
 th, td {
   padding: var(--dt-padding) var(--dt-padding);
 }
@@ -73,6 +83,11 @@ th {
   font-weight: bolder;
   text-align: left;
   border-bottom: solid 1px var(--dt-border-color);
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: var(--highlight-color);
 }
 
 td {
@@ -91,7 +106,10 @@ tbody tr .ok::after,
 tbody tr .warning::after,
 tbody tr .error::after,
 tbody tr .online::after,
-tbody tr .offline::after {
+tbody tr .offline::after,
+tbody tr .new::after,
+tbody tr .build::after,
+tbody tr .complete::after {
   display: inline-block;
   vertical-align: middle;
 }
@@ -121,11 +139,29 @@ tbody tr .offline::after {
   color: var(--dt-status-offline-color);
 }
 
+tbody tr .new::after {
+  content: "";
+  color: var(--dt-status-offline-color);
+}
+
+tbody tr .build::after {
+  content: "";
+  color: var(--dt-status-warning-color);
+}
+
+tbody tr .complete::after {
+  content: "";
+  color: var(--dt-status-ok-color);
+}
+
 tr .ok::before,
 tr .warning::before,
 tr .error::before,
 tr .online::before,
-tr .offline::before {
+tr .offline::before,
+tr .new::before,
+tr .build::before,
+tr .complete::before {
   content: "";
   display: inline-block;
   width: 10px;
@@ -153,4 +189,17 @@ tbody tr .online::before {
 
 tbody tr .offline::before {
   background-color: var(--dt-status-offline-color);
+}
+
+
+tbody tr .new::before {
+  background-color: var(--dt-status-offline-color);
+}
+
+tbody tr .build::before {
+  background-color: var(--dt-status-warning-color);
+}
+
+tbody tr .complete::before {
+  background-color: var(--dt-status-ok-color);
 }
