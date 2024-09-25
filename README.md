@@ -37,6 +37,6 @@ Add the repository URL under **Supervisor → Add-on Store** in your Home Assist
 
 [amd64-shield]: https://img.shields.io/badge/amd64-yes-blue.svg
 [aarch64-shield]: https://img.shields.io/badge/aarch64-yes-blue.svg
-[armv7-shield]: https://img.shields.io/badge/armv7-no-red.svg
+[armv7-shield]: https://img.shields.io/badge/armv7-yes-blue.svg
 [armhf-shield]: https://img.shields.io/badge/armhf-no-red.svg
 [i386-shield]: https://img.shields.io/badge/i386-no-red.svg
