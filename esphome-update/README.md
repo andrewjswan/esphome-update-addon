@@ -71,7 +71,7 @@ update:
 ```
 
 > [!TIP]
-> ESPHome [configuration](https://github.com/andrewjswan/esphome-configuration)
+> ESPHome [configuration](https://github.com/andrewjswan/esphome-config)
 
 [amd64-shield]: https://img.shields.io/badge/amd64-yes-blue.svg
 [aarch64-shield]: https://img.shields.io/badge/aarch64-yes-blue.svg
