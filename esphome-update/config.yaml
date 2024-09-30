@@ -1,6 +1,6 @@
 ---
 name: ESPHome Update
-version: 2024.9.5
+version: 2024.9.7
 slug: esphome-update
 description: ESPHome Update Server
 url: https://github.com/andrewjswan/esphome-update-addon/
@@ -16,8 +16,10 @@ image: ghcr.io/andrewjswan/esphome-update-addon-{arch}
 
 startup: application
 boot: auto
+hassio_role: manager
 init: false
 docker_api: true
+hassio_api: true
 ingress: true
 
 map:

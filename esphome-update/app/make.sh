@@ -35,6 +35,15 @@ if [ "$HOSTNAME" != "${ADDON/'_'/'-'}" ]; then
  docker exec addon_$ADDON $SCRIPT_DIR/$SCRIPT $1 $2 $3 $ADDON $5
 else
  export ESPHOME_IS_HA_ADDON=true
+ if [[ -d /data/cache ]]; then
+     pio_cache_base=/data/cache/platformio
+ else
+     pio_cache_base=/config/esphome/.esphome/platformio
+ fi
+ export PLATFORMIO_PLATFORMS_DIR="${pio_cache_base}/platforms"
+ export PLATFORMIO_PACKAGES_DIR="${pio_cache_base}/packages"
+ export PLATFORMIO_CACHE_DIR="${pio_cache_base}/cache"
+ export PLATFORMIO_GLOBALLIB_DIR=/piolibs
 
  if esphome $1 $2; then
   mkdir -p /config/addons_config/esphome-update

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2024.9.7 - 2024-09-30
+
+- Try start ESPHome addon if not running
+- Synchronization of variables among for ESPHome addon
+
 ## 2024.9.5 - 2024-09-25
 
 - Update build images

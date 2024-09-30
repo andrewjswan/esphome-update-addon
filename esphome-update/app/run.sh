@@ -43,9 +43,12 @@ CONFIG_PATH=/data/options.json
 
 export ARCH=$(cat /arch)
 
+DOCKER=$(docker version -f json | jq -r .Client.Version)
+
 bashio::log.info 'ESPHome Update Starting...'
 bashio::log.info 'Configuration:'
 bashio::log.blue "  Architecture: ${ARCH}"
+bashio::log.blue "  Docker version: ${DOCKER}"
 if bashio::config.has_value 'esphome_domain_name'; then
   export ESPHOME_DOMAIN=$(bashio::config 'esphome_domain_name')
   bashio::log.blue "  ESPHome: ${ESPHOME_DOMAIN}"

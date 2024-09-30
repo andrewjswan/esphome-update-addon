@@ -15,6 +15,7 @@ import time
 from pathlib import Path
 from threading import Thread
 
+import requests
 from bottle import route, run, static_file, template
 from esphome.config import dump_dict, read_config
 from esphome.core import CORE
@@ -180,6 +181,34 @@ def esphome_version() -> None:
         addon_config["esphome_version"] = ""
 
 
+def esphome_start() -> bool:
+    """Start ESPHome addon."""
+    access_token = os.getenv("SUPERVISOR_TOKEN")
+    url = "http://supervisor/addons/" + addon_config["esphome_domain"] + "/start"
+    try:
+        result = requests.post(url, headers={"Authorization": "Bearer " + access_token}, timeout=30)
+        details = result.json()
+        return details["result"] == "ok"
+    except Exception as e:
+        LOGGER.debug("Response: %s", result)
+        LOGGER.exception("Error:", exc_info=e)
+    return False
+
+
+def esphome_stop() -> bool:
+    """Stop ESPHome addon."""
+    access_token = os.getenv("SUPERVISOR_TOKEN")
+    url = "http://supervisor/addons/" + addon_config["esphome_domain"] + "/stop"
+    try:
+        result = requests.post(url, headers={"Authorization": "Bearer " + access_token}, timeout=30)
+        details = result.json()
+        return details["result"] == "ok"
+    except Exception as e:
+        LOGGER.debug("Response: %s", result)
+        LOGGER.exception("Error:", exc_info=e)
+    return False
+
+
 def load_devices() -> None:
     """Load ESP configuration list."""
     global esphome_devices  # noqa: PLW0603
@@ -202,9 +231,18 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
     """ESPHome Update Main work function."""
     global esphome_devices  # noqa: PLW0602
 
+    esphome_started = True
     esphome_version()
     if not addon_config["esphome_version"]:
-        LOGGER.debug("Look like ESPHome Add-on not started")
+        LOGGER.debug("Look like ESPHome Add-on not started, try start...")
+        if not esphome_start():
+            LOGGER.debug("ESPHome addon start failed, skip...")
+            return
+        esphome_version()
+        esphome_started = False
+
+    if not addon_config["esphome_version"]:
+        LOGGER.debug("ESPHome version - unknown, skip...")
         return
 
     esphome_folder_md5 = folder_md5(ESPHOME_FOLDER)
@@ -270,77 +308,78 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                     contextlib.suppress(Exception),
                 ):
                     config = read_config({})
-                if config and "esphome" in config:
-                    conf_md5 = config_md5(config)
-                    if conf_md5 != esphome_devices[file]["md5"]:
-                        need_build = True
-                        LOGGER.debug(
-                            "Need build: Configuration MD5 changed %s - %s",
-                            esphome_devices[file]["md5"],
-                            conf_md5,
-                        )
-                    esphome_devices[file]["md5"] = conf_md5
-
-                    if "name" in config["esphome"]:
-                        esphome_devices[file]["name"] = config["esphome"]["name"]
-                    if "comment" in config["esphome"]:
-                        esphome_devices[file]["comment"] = config["esphome"]["comment"]
-                    if "project" in config["esphome"]:
-                        if "name" in config["esphome"]["project"]:
-                            name = config["esphome"]["project"]["name"].split(".")
-                            if len(name) == PROJECT_LEN:
-                                esphome_devices[file]["author"] = name[0]
-                                esphome_devices[file]["project"] = name[1].replace("_", " ")
-                        if "version" in config["esphome"]["project"]:
-                            version = config["esphome"]["project"]["version"]
-                            if (
-                                esphome_devices[file]["version"] != version
-                                and esphome_devices[file]["build"] != BUILD_NEW
-                            ):
-                                update_reason = (
-                                    "Version bump from "
-                                    + esphome_devices[file]["version"]
-                                    + " to "
-                                    + version
-                                )
-                                need_build = True
-                                LOGGER.debug(
-                                    "Need build: Configuration version changed: %s - %s",
-                                    esphome_devices[file]["version"],
-                                    version,
-                                )
-                            esphome_devices[file]["version"] = version
-                        else:
-                            esphome_devices[file]["version"] = addon_config["esphome_version"]
-
-                    if "esp32" in config:
-                        esphome_devices[file]["chip"] = ESP32
-                        if "variant" in config["esp32"]:
-                            esphome_devices[file]["chip"] = config["esp32"]["variant"]
-                    if "esp8266" in config:
-                        esphome_devices[file]["chip"] = ESP8266
-
-                    http_update = (
-                        "update" in config
-                        and len(
-                            [
-                                item
-                                for item in config["update"]
-                                if "platform" in item and item["platform"] == "http_request"
-                            ],
-                        )
-                        > 0
-                    )
-                    if http_update != esphome_devices[file]["http_ota"]:
-                        need_build = True
-                        LOGGER.debug("Need build: Configuration OTA status changed")
-                    esphome_devices[file]["http_ota"] = http_update
-                else:
-                    del esphome_devices[file]
-                    need_build = False
             except Exception as e:
-                need_build = False
+                config = None
                 LOGGER.exception("Error:", exc_info=e)
+
+            if config and "esphome" in config:
+                conf_md5 = config_md5(config)
+                if conf_md5 != esphome_devices[file]["md5"]:
+                    need_build = True
+                    LOGGER.debug(
+                        "Need build: Configuration MD5 changed %s - %s",
+                        esphome_devices[file]["md5"],
+                        conf_md5,
+                    )
+                esphome_devices[file]["md5"] = conf_md5
+
+                if "name" in config["esphome"]:
+                    esphome_devices[file]["name"] = config["esphome"]["name"]
+                if "comment" in config["esphome"]:
+                    esphome_devices[file]["comment"] = config["esphome"]["comment"]
+                if "project" in config["esphome"]:
+                    if "name" in config["esphome"]["project"]:
+                        name = config["esphome"]["project"]["name"].split(".")
+                        if len(name) == PROJECT_LEN:
+                            esphome_devices[file]["author"] = name[0]
+                            esphome_devices[file]["project"] = name[1].replace("_", " ")
+                    if "version" in config["esphome"]["project"]:
+                        version = config["esphome"]["project"]["version"]
+                        if (
+                            esphome_devices[file]["version"] != version
+                            and esphome_devices[file]["build"] != BUILD_NEW
+                        ):
+                            update_reason = (
+                                "Version bump from "
+                                + esphome_devices[file]["version"]
+                                + " to "
+                                + version
+                            )
+                            need_build = True
+                            LOGGER.debug(
+                                "Need build: Configuration version changed: %s - %s",
+                                esphome_devices[file]["version"],
+                                version,
+                            )
+                        esphome_devices[file]["version"] = version
+                    else:
+                        esphome_devices[file]["version"] = addon_config["esphome_version"]
+
+                if "esp32" in config:
+                    esphome_devices[file]["chip"] = ESP32
+                    if "variant" in config["esp32"]:
+                        esphome_devices[file]["chip"] = config["esp32"]["variant"]
+                if "esp8266" in config:
+                    esphome_devices[file]["chip"] = ESP8266
+
+                http_update = (
+                    "update" in config
+                    and len(
+                        [
+                            item
+                            for item in config["update"]
+                            if "platform" in item and item["platform"] == "http_request"
+                        ],
+                    )
+                    > 0
+                )
+                if http_update != esphome_devices[file]["http_ota"]:
+                    need_build = True
+                    LOGGER.debug("Need build: Configuration OTA status changed")
+                esphome_devices[file]["http_ota"] = http_update
+            else:
+                del esphome_devices[file]
+                need_build = False
 
             if need_build and Path(MAKE_FILE).is_file():
                 esphome_devices[file]["status"] = STATUS_BUILD
@@ -418,6 +457,11 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                 delete_from_storage(esphome_devices[file]["name"])
 
     save_devices()
+
+    if not esphome_started:
+        LOGGER.debug("Stop ESPHome addon...")
+        esphome_stop()
+
     LOGGER.debug("Work done.")
 
 
