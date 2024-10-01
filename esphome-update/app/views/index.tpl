@@ -50,6 +50,11 @@
           <td><a href="config/{{value}}">{{value}}</a></td>
         % elif key=='status':
           <td title="{{value}}"><span class="{{value}}"></td>
+        % elif key=='zzz':
+          <%
+            value = "complete" if value else "new"
+          %>
+          <td title="{{value}}"><span class="{{value}}"></td>
         % else:
           <td>{{value}}</td>
         % end
