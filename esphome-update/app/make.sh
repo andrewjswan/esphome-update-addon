@@ -48,8 +48,10 @@ else
  if esphome $1 $2; then
   mkdir -p /config/addons_config/esphome-update
   if ! [ -z $5 ]; then
-    # cp -R /data/.build/$3/.pioenvs/$3/firmware.factory.bin /config/addons_config/esphome-update/$3-firmware.factory.bin
     cp -R /data/.build/$3/.pioenvs/$3/firmware.ota.bin /config/addons_config/esphome-update/$3-firmware.ota.bin
+  fi
+  if ! [ -z $6 ]; then
+    cp -R /data/.build/$3/.pioenvs/$3/firmware.factory.bin /config/addons_config/esphome-update/$3-firmware.factory.bin
   fi
   exit 0
  else
