@@ -273,6 +273,7 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                 file_info["file"] = os.fspath(file_path)
                 file_info["time"] = ""
                 file_info["md5"] = ""
+                file_info["zzz"] = False
                 file_info["http_ota"] = False
                 file_info["esphome"] = addon_config["esphome_version"]
                 file_info["build"] = BUILD_NEW
@@ -361,6 +362,8 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                         esphome_devices[file]["chip"] = config["esp32"]["variant"]
                 if "esp8266" in config:
                     esphome_devices[file]["chip"] = ESP8266
+                
+                esphome_devices[file]["zzz"] = "deep_sleep" in config
 
                 http_update = (
                     "update" in config
