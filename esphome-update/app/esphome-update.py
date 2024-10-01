@@ -362,7 +362,7 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                         esphome_devices[file]["chip"] = config["esp32"]["variant"]
                 if "esp8266" in config:
                     esphome_devices[file]["chip"] = ESP8266
-                
+
                 esphome_devices[file]["zzz"] = "deep_sleep" in config
 
                 http_update = (
