@@ -7,7 +7,7 @@ RUN \
   apk add --no-cache \
     python3-dev=3.12.6-r0 \
     py3-pip=24.0-r2 \
-    libmagic
+    libmagic=5.45-r1
 
 RUN \
   apk add --no-cache --virtual .build-dependencies \
