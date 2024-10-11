@@ -5,13 +5,13 @@ FROM $BUILD_FROM
 # Packages
 RUN \
   apk add --no-cache \
-    python3-dev=3.12.6-r0 \
-    py3-pip=24.0-r2 \
-    libmagic=5.45-r1
+    python3-dev=~3.12 \
+    py3-pip=~24.0 \
+    libmagic=~5.45
 
 RUN \
   apk add --no-cache --virtual .build-dependencies \
-    build-base=0.5-r3 \
+    build-base=~0.5-r3 \
     git=2.45.2-r0 \
     docker=26.1.5-r0 \
     nginx
