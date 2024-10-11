@@ -7,9 +7,15 @@
       % if key!='md5':
         % if key=='status':
         <th title="Status"></th>
+        % elif key=='zzz':
+        <th>Zzz</th>
+        % elif key=='esphome':
+        <th>ESPHome</th>
+        % elif key=='http_ota':
+        <th>OTA</th>
         % else:
         <%
-          key = key.upper().strip()
+          key = key.title().strip()
         %>
         <th>{{key}}</th>
         % end
