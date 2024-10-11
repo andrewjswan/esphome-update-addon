@@ -471,36 +471,36 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
 def get_data() -> dict:
     """Get data for index page."""
     global esphome_devices  # noqa: PLW0602
-    return esphome_devices
+    return dict(sorted(esphome_devices.items()))
 
 
 @route("/")
-def index():  # noqa: ANN201
+def index() -> object:
     """Show index page."""
     data = get_data()
     return template("index.tpl", configs=data, time=time.time())
 
 
 @route("/ping")
-def ping():  # noqa: ANN201
+def ping() -> object:
     """Show Ping echo."""
     return {"status": "online", "servertime": time.time()}
 
 
 @route(r"/<filename:re:.*\.css>")
-def stylesheets(filename: str):  # noqa: ANN201
+def stylesheets(filename: str) -> object:
     """Get static CSS."""
     return static_file(filename, root="static/")
 
 
 @route("/firmware/<filename:path>")
-def firmware_download(filename: str):  # noqa: ANN201
+def firmware_download(filename: str) -> object:
     """Download file from ESPHome Update storage."""
     return static_file(filename, root=ESPHOME_UPDATE_STORAGE, download=filename)
 
 
 @route("/config/<filename:path>")
-def config_download(filename: str):  # noqa: ANN201
+def config_download(filename: str) -> object:
     """Download file from ESPHome config folder."""
     return static_file(filename, root=ESPHOME_FOLDER, download=filename)
 
