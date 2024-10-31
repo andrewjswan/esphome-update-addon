@@ -1,5 +1,10 @@
 # Changelog
 
+## 2024.10.5 - 2024-10-31
+
+- Cleanup configuration list from non existing config files
+- Bug fixes
+
 ## 2024.10.1 - 2024-10-01
 
 - Add `deep_sleep` properties

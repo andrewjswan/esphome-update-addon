@@ -34,6 +34,7 @@ COMPILE = "compile"
 BUILD_OK = 0
 BUILD_NEW = -1
 BUILD_COPY = -5
+BUILD_ERROR = 555
 
 STATUS_NEW = "new"
 STATUS_BUILD = "build"
@@ -381,7 +382,7 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                     LOGGER.debug("Need build: Configuration OTA status changed")
                 esphome_devices[file]["http_ota"] = http_update
             else:
-                del esphome_devices[file]
+                esphome_devices[file]["build"] = BUILD_ERROR
                 need_build = False
 
             if need_build and Path(MAKE_FILE).is_file():
@@ -455,10 +456,20 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
             if (
                 addon_config["auto_clean"]
                 and addon_config["only_http_ota"]
+                and file in esphome_devices
                 and not esphome_devices[file]["http_ota"]
             ):
                 delete_from_storage(esphome_devices[file]["name"])
 
+    LOGGER.debug("Cleanup configuration list...")
+    for file in list(esphome_devices):
+        file_path = Path(ESPHOME_FOLDER) / file
+        if not Path(file_path).exists():
+            LOGGER.debug("Delete not existing config [%s] from configuration list", file)
+            delete_from_storage(esphome_devices[file]["name"])
+            del esphome_devices[file]
+
+    LOGGER.debug("Save configuration list...")
     save_devices()
 
     if not esphome_started:
