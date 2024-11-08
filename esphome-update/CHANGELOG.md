@@ -1,5 +1,13 @@
 # Changelog
 
+## 2024.11.3 - 2024-11-08
+
+- Publication in the general repository
+
+## 2024.11.1 - 2024-11-07
+
+- Bug fixes
+
 ## 2024.10.5 - 2024-10-31
 
 - Cleanup configuration list from non existing config files

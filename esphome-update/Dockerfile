@@ -55,16 +55,20 @@ LABEL \
     org.opencontainers.image.revision=${BUILD_REF} \
     org.opencontainers.image.version=${BUILD_VERSION}
 
+WORKDIR /
+
 # Copy root filesystem
 COPY rootfs /
+
+# Make scripts executable
+RUN chmod a+x $(find "./" -type f -iname "*.sh")
+RUN chmod a+x $(find "./etc/s6-overlay/s6-rc.d" -type f -iname "*")
+RUN chmod a+x $(find "./etc/services.d" -type f -iname "*")
 
 WORKDIR /app
 
 # Copy data for add-on
 COPY app .
-
-# Make scripts executable
-RUN chmod a+x $(find "./" -type f -iname "*.sh")
 
 # Start ESPHome Update
 RUN echo ${BUILD_ARCH} > /arch
