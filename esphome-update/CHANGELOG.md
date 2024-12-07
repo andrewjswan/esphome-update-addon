@@ -1,5 +1,17 @@
 # Changelog
 
+## 2024.11.9 - 2024-12-07
+
+- Add Update ESPhome Web index page option
+
+## 2024.11.7 - 2024-11-21
+
+- Update for ESPHome 2024.11.0
+
+## 2024.11.5 - 2024-11-09
+
+- Web cosmetic
+
 ## 2024.11.3 - 2024-11-08
 
 - Publication in the general repository

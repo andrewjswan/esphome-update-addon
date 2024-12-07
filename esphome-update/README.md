@@ -39,7 +39,7 @@ The firmware storage is located in `\addon_configs\esphome-update\`
 > For the **ESPHome Update** add-on to work, it must be given `full access` (turn off the `protected mode`) option, and the **ESPHome** add-on must be installed and running.
 
 ### OTA Update via HTTP Request Sample
-```
+```Yaml
 substitutions:
   device: esp_with_http_ota
   name: Grill
@@ -68,6 +68,19 @@ update:
     source: http://${home_assistant_ip}:5500/firmware/${device}-manifest.json
     icon: mdi:update
     web_server_sorting_weight: 15
+```
+
+### Local Web Server index page (only if Update ESPhome Web index page enabled)
+```Yaml
+web_server:
+  js_url: "http://${home_assistant_ip}:5500/web/www.js"
+  version: 3
+```
+
+```Yaml
+web_server:
+  js_url: "http://${home_assistant_ip}:5500/web/v2/www.js"
+  version: 2
 ```
 
 > [!TIP]

@@ -1,6 +1,6 @@
 ---
 name: ESPHome Update
-version: 2024.11.3
+version: 2024.11.9
 slug: esphome-update
 description: ESPHome Update Server
 url: https://github.com/andrewjswan/esphome-update-addon/
@@ -12,7 +12,7 @@ arch:
   - aarch64
   - armv7
 
-image: ghcr.io/andrewjswan/esphome-update-addon-{arch}
+# image: ghcr.io/andrewjswan/esphome-update-addon-{arch}
 
 startup: application
 boot: auto
@@ -49,4 +49,5 @@ schema:
   esphome_domain_name: str?
   update_interval: int(1,60)?
   http_ota: bool?
+  web_update: bool?
   log_level: list(DEBUG|INFO|WARNING|ERROR|CRITICAL)?

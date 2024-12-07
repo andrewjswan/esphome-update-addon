@@ -5,7 +5,7 @@
 
   --dt-status-ok-color: greenyellow;
   --dt-status-warning-color: lightsalmon;
-  --dt-status-error-color: lightred;
+  --dt-status-error-color: red;
   --dt-status-online-color: greenyellow;
   --dt-status-offline-color: lightgray;
 

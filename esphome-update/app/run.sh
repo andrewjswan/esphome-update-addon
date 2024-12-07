@@ -65,7 +65,13 @@ if bashio::config.has_value 'http_ota'; then
   export HTTP_OTA=$(bashio::config 'http_ota')
   bashio::log.blue "  Only with HTTP OTA: ${HTTP_OTA}"
 else
-  bashio::log.blue "  Only with HTTP OTA: False"
+  bashio::log.blue "  Only with HTTP OTA: false"
+fi
+if bashio::config.has_value 'web_update'; then
+  export WEB_UPDATE=$(bashio::config 'web_update')
+  bashio::log.blue "  Update ESPhome Web index page: ${HTTP_OTA}"
+else
+  bashio::log.blue "  Update ESPhome Web index page: false"
 fi
 if bashio::config.has_value 'log_level'; then
   export LOG_LEVEL=$(bashio::config 'log_level')
