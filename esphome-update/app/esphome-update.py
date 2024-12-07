@@ -26,8 +26,11 @@ ESPHOME_UPDATE_STORAGE = "/addon_configs/esphome-update/"
 
 CONFIGS_FILE = ESPHOME_UPDATE + "configs.json"
 MAKE_FILE = ESPHOME_UPDATE + "make.sh"
-HTML_FILE = ESPHOME_UPDATE + "configs.html"
 VERSION_FILE = "./esphome-version.sh"
+
+ESPHOME_JS_URL = "https://oi.esphome.io/v{version}/www.js"
+WEB_JS_FILE = ESPHOME_UPDATE + "www/v{version}/www.js"
+WEB_JS_URL = "{path}/www/v{version}/"
 
 COMPILE = "compile"
 
@@ -41,6 +44,7 @@ STATUS_BUILD = "build"
 STATUS_COMPLETE = "complete"
 
 PROJECT_LEN = 2
+WEB_UPDATE_HOURS = 12
 
 ESPHOME = "esphome"
 ESP32 = "ESP32"
@@ -53,9 +57,12 @@ addon_config = {
     "update_interval": 900,
     "only_http_ota": True,
     "auto_clean": True,
+    "web_update": False,
 }
 
 esphome_devices = {}
+
+webupdate = datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(weeks=1)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -162,6 +169,11 @@ def load_config() -> None:
     http_ota = os.getenv("HTTP_OTA")
     if http_ota:
         addon_config["only_http_ota"] = http_ota.lower() == "true"
+
+    # Get Web Update
+    web_update = os.getenv("WEB_UPDATE")
+    if web_update:
+        addon_config["web_update"] = web_update.lower() == "true"
 
 
 def esphome_version() -> None:
@@ -479,6 +491,35 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
     LOGGER.debug("Work done.")
 
 
+def web_update() -> None:
+    """ESPHome Update Update WEB server index page."""
+    global webupdate  # noqa: PLW0603
+    if not addon_config["web_update"]:
+        return
+
+    now = datetime.datetime.now(tz=datetime.UTC)
+    if divmod((now - webupdate).total_seconds(), 3600)[0] > WEB_UPDATE_HOURS:
+        webupdate = now
+        for v in range(2, 4):
+            try:
+                LOGGER.debug("Update ESPHome WEB server index page...")
+                if not Path(Path(WEB_JS_FILE.format(version=v)).parent).is_dir():
+                    Path(Path(WEB_JS_FILE.format(version=v)).parent).mkdir(
+                        parents=True,
+                        exist_ok=True,
+                    )
+                with Path(WEB_JS_FILE.format(version=v)).open(mode="wb") as outfile:
+                    content = requests.get(
+                        ESPHOME_JS_URL.format(version=v),
+                        stream=True,
+                        timeout=10,
+                    ).content
+                    outfile.write(content)
+                LOGGER.debug("ESPHome WEB server index page updated.")
+            except Exception as e:
+                LOGGER.exception("Error:", exc_info=e)
+
+
 def get_data() -> dict:
     """Get data for index page."""
     global esphome_devices  # noqa: PLW0602
@@ -516,10 +557,23 @@ def config_download(filename: str) -> object:
     return static_file(filename, root=ESPHOME_FOLDER, download=filename)
 
 
+@route("/web/www.js")
+def web_default() -> object:
+    """Web server index page."""
+    return static_file("www.js", root=WEB_JS_URL.format(path=ESPHOME_UPDATE, version=3))
+
+
+@route("/web/v<version:int>/www.js")
+def web_version(version: int) -> object:
+    """Web server index page."""
+    return static_file("www.js", root=WEB_JS_URL.format(path=ESPHOME_UPDATE, version=version))
+
+
 def work_loop() -> None:
     """Start ESPHome Update main processing cycle."""
     while True:
         work()
+        web_update()
         time.sleep(addon_config["update_interval"])
 
 

@@ -11,5 +11,9 @@ configuration:
     name: Only with HTTP Request OTA
     description: Store in storage, only firmware with HTTP Request OTA support
 
+  web_update:
+    name: Update ESPhome Web index page
+    description: Download and Store in storage, ESPhome Web index page
+
   log_level:
     name: Log Level
