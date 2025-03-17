@@ -12,7 +12,7 @@
     </header>
     {{!base}}
     <footer>
-        <p><a target="_blank" href="https://github.com/andrewjswan/esphome-update-addon/">ESPHome Update Server</a> - Copyright &copy; 2024 Andrew J.Swan</p>
+        <p><a target="_blank" href="https://github.com/andrewjswan/esphome-update-addon/">ESPHome Update Server</a> - Copyright &copy; 2024-2025 Andrew J.Swan</p>
     </footer>
   </div>
 </body>
