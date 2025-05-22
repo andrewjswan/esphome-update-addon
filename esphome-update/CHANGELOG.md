@@ -1,5 +1,9 @@
 # Changelog
 
+## 2025.5.1 - 2025-05-21
+
+- Update for ESPHome 2025.5.0
+
 ## 2024.11.9 - 2024-12-07
 
 - Add Update ESPhome Web index page option
