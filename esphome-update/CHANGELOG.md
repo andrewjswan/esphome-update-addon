@@ -1,5 +1,10 @@
 # Changelog
 
+## 2025.6.1 - 2025-06-30
+
+- Update for ESPHome 2025.6.2
+- Remove armv7 support
+
 ## 2025.5.1 - 2025-05-21
 
 - Update for ESPHome 2025.5.0

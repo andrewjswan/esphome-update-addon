@@ -6,14 +6,14 @@ FROM $BUILD_FROM
 RUN \
   apk add --no-cache \
     python3-dev=~3.12 \
-    py3-pip=~24.3 \
+    py3-pip=~25.1 \
     libmagic=~5.46
 
 RUN \
   apk add --no-cache --virtual .build-dependencies \
     build-base=~0.5 \
-    git=~2.47.2 \
-    docker=~27.3.1 \
+    git=~2.49 \
+    docker=~28.2 \
     nginx
 
 # Prepare
@@ -23,7 +23,7 @@ RUN \
 # Python
 COPY requirements.txt /
 
-RUN pip install  --break-system-packages -r requirements.txt && \
+RUN pip install --break-system-packages -r requirements.txt && \
     rm requirements.txt
 
 # Port

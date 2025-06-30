@@ -1,6 +1,6 @@
 ---
 name: ESPHome Update
-version: 2025.5.1
+version: 2025.6.1
 slug: esphome-update
 description: ESPHome Update Server
 url: https://github.com/andrewjswan/esphome-update-addon/
@@ -10,9 +10,8 @@ codenotary: notary@home-assistant.io
 arch:
   - amd64
   - aarch64
-  - armv7
 
-# image: ghcr.io/andrewjswan/esphome-update-addon-{arch}
+image: ghcr.io/andrewjswan/esphome-update-addon-{arch}
 
 startup: application
 boot: auto
