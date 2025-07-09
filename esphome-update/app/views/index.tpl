@@ -13,9 +13,11 @@
         <th>ESPHome</th>
         % elif key=='http_ota':
         <th>OTA</th>
+        % elif key=='build_path':
+          % continue
         % else:
         <%
-          key = key.title().strip()
+          key = key.title().strip().replace("_", " ")
         %>
         <th>{{key}}</th>
         % end
@@ -61,6 +63,8 @@
             value = "complete" if value else "new"
           %>
           <td title="{{value}}"><span class="{{value}}"></td>
+        % elif key=='build_path':
+          % continue
         % else:
           <td>{{value}}</td>
         % end

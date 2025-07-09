@@ -278,12 +278,14 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                 file_info = {}
                 file_info["status"] = STATUS_NEW
                 file_info["name"] = ""
+                file_info["friendly_name"] = ""
                 file_info["comment"] = ""
                 file_info["author"] = ""
                 file_info["project"] = ""
                 file_info["version"] = addon_config["esphome_version"]
                 file_info["chip"] = ""
                 file_info["file"] = os.fspath(file_path)
+                file_info["build_path"] = "-"
                 file_info["time"] = ""
                 file_info["md5"] = ""
                 file_info["zzz"] = False
@@ -341,6 +343,10 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                     esphome_devices[file]["name"] = config["esphome"]["name"]
                 if "comment" in config["esphome"]:
                     esphome_devices[file]["comment"] = config["esphome"]["comment"]
+                if "friendly_name" in config["esphome"]:
+                    esphome_devices[file]["friendly_name"] = config["esphome"]["friendly_name"]
+                if "build_path" in config["esphome"]:
+                    esphome_devices[file]["build_path"] = config["esphome"]["build_path"]
                 if "project" in config["esphome"]:
                     if "name" in config["esphome"]["project"]:
                         name = config["esphome"]["project"]["name"].split(".")
@@ -412,6 +418,7 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                         file_path,
                         esphome_devices[file]["name"],
                         addon_config["esphome_domain"],
+                        esphome_devices[file]["build_path"],
                         need_store,
                     ],
                     capture_output=True,

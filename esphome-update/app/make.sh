@@ -6,6 +6,12 @@ else
  ADDON=5c53de3b_esphome
 fi
 
+if ! [ -z $5 ] && [ "$5" != "-" ]; then
+ BUILD=$5
+else
+ BUILD=.build/$3
+fi
+
 if [ "$HOSTNAME" != "${ADDON/'_'/'-'}" ]; then
  SCRIPT=$(basename "$0")
  SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -32,7 +38,7 @@ if [ "$HOSTNAME" != "${ADDON/'_'/'-'}" ]; then
   exit 2
  fi
 
- docker exec addon_$ADDON $SCRIPT_DIR/$SCRIPT $1 $2 $3 $ADDON $5
+ docker exec addon_$ADDON $SCRIPT_DIR/$SCRIPT $1 $2 $3 $ADDON $BUILD $6 $7
 else
  export ESPHOME_IS_HA_ADDON=true
  if [[ -d /data/cache ]]; then
@@ -47,11 +53,11 @@ else
 
  if esphome $1 $2; then
   mkdir -p /config/addons_config/esphome-update
-  if ! [ -z $5 ]; then
-    cp -R /data/.build/$3/.pioenvs/$3/firmware.ota.bin /config/addons_config/esphome-update/$3-firmware.ota.bin
-  fi
   if ! [ -z $6 ]; then
-    cp -R /data/.build/$3/.pioenvs/$3/firmware.factory.bin /config/addons_config/esphome-update/$3-firmware.factory.bin
+    cp -R /data/$5/.pioenvs/$3/firmware.ota.bin /config/addons_config/esphome-update/$3-firmware.ota.bin
+  fi
+  if ! [ -z $7 ]; then
+    cp -R /data/$5/.pioenvs/$3/firmware.factory.bin /config/addons_config/esphome-update/$3-firmware.factory.bin
   fi
   exit 0
  else
