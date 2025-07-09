@@ -42,20 +42,22 @@ The firmware storage is located in `\addon_configs\esphome-update\`
 ```Yaml
 substitutions:
   device: esp_with_http_ota
-  name: Grill
+  name: grill
+  friendly_name: Grill
   project_name: "andrewjswan.ESP_With_HTTP_OTA"
   project_version: "1.0.5"
   comment: "ESP With HTTP OTA Support"
 
 esphome:
-  name: $device
+  name: $name
+  friendly_name: $friendly_name
   comment: $comment
   project:
     name: $project_name
     version: $project_version
 
 http_request:
-  useragent: "esphome/${device} (${project_version})"
+  useragent: "esphome/${name} (${project_version})"
   verify_ssl: false
   timeout: 10s
 
@@ -65,7 +67,7 @@ ota:
 update:
   - platform: http_request
     name: "${name} Firmware Update"
-    source: http://${home_assistant_ip}:5500/firmware/${device}-manifest.json
+    source: http://${home_assistant_ip}:5500/firmware/${name}-manifest.json
     icon: mdi:update
     web_server_sorting_weight: 15
 ```

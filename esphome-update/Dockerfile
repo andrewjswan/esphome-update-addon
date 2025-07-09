@@ -13,7 +13,7 @@ RUN \
   apk add --no-cache --virtual .build-dependencies \
     build-base=~0.5 \
     git=~2.49 \
-    docker=~28.2 \
+    docker=~28.3 \
     nginx
 
 # Prepare

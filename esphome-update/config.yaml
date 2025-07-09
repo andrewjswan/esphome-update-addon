@@ -1,6 +1,6 @@
 ---
 name: ESPHome Update
-version: 2025.6.1
+version: 2025.6.3
 slug: esphome-update
 description: ESPHome Update Server
 url: https://github.com/andrewjswan/esphome-update-addon/
