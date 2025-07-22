@@ -1,5 +1,13 @@
 # Changelog
 
+## 2025.7.3 - 2025-07-19
+
+- Update for ESPHome 2025.7.2
+
+## 2025.7.1 - 2025-07-17
+
+- Update for ESPHome 2025.7.1
+
 ## 2025.6.5 - 2025-07-09
 
 - Added properties, fixed firmware creation paths
