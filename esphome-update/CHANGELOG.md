@@ -1,5 +1,13 @@
 # Changelog
 
+## 2025.8.1 - 2025-08-22
+
+- Update for ESPHome 2025.8.0
+
+## 2025.7.5 - 2025-07-31
+
+- Update for ESPHome 2025.7.4
+
 ## 2025.7.3 - 2025-07-19
 
 - Update for ESPHome 2025.7.2

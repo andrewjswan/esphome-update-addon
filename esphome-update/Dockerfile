@@ -53,7 +53,9 @@ LABEL \
     org.opencontainers.image.licenses="MIT" \
     org.opencontainers.image.created=${BUILD_DATE} \
     org.opencontainers.image.revision=${BUILD_REF} \
-    org.opencontainers.image.version=${BUILD_VERSION}
+    org.opencontainers.image.version=${BUILD_VERSION} \
+    org.opencontainers.image.source="https://github.com/${BUILD_REPOSITORY}" \
+    org.opencontainers.image.documentation="https://github.com/${BUILD_REPOSITORY}/blob/master/README.md"
 
 WORKDIR /
 
