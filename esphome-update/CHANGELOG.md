@@ -1,5 +1,14 @@
 # Changelog
 
+## 2025.11.1 - 2025-11-16
+
+- Remove deprecated `codenotary` fields
+- Update for ESPHome 2025.10.5
+
+## 2025.10.3 - 2025-10-16
+
+- Update for ESPHome 2025.10.1
+
 ## 2025.10.1 - 2025-10-15
 
 - Update for ESPHome 2025.10.0
