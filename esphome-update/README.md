@@ -11,7 +11,7 @@
 [![GitHub License](https://img.shields.io/github/license/andrewjswan/esphome-update-addon?color=blue)](https://github.com/andrewjswan/esphome-update-addon/blob/master/LICENSE)
 [![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
-**ESPHome Update Server** - monitors your device configurations in the ESPHome folder, and with each change, builds them into a ready-made firmware for [OTA Update via HTTP Request](https://esphome.io/components/update/http_request.html). 
+**ESPHome Update Server** - monitors your device configurations in the ESPHome folder, and with each change, builds them into a ready-made firmware for [OTA Update via HTTP Request](https://esphome.io/components/update/http_request.html).
 
 The firmware storage is located in `\addon_configs\esphome-update\`
 
@@ -26,6 +26,7 @@ The firmware storage is located in `\addon_configs\esphome-update\`
 - `http_ota`: Store in storage, only firmware with HTTP Request OTA support
 
 ### Default confururation
+
 ```
   esphome_domain_name: 5c53de3b_esphome  # Optional
   update_interval: 15  # Optional, values from 1 to 60 minutes
@@ -39,6 +40,7 @@ The firmware storage is located in `\addon_configs\esphome-update\`
 > For the **ESPHome Update** add-on to work, it must be given `full access` (turn off the `protected mode`) option, and the **ESPHome** add-on must be installed and running.
 
 ### OTA Update via HTTP Request Sample
+
 ```Yaml
 substitutions:
   device: esp_with_http_ota
@@ -73,6 +75,7 @@ update:
 ```
 
 ### Local Web Server index page (only if Update ESPhome Web index page enabled)
+
 ```Yaml
 web_server:
   js_url: "http://${home_assistant_ip}:5500/web/www.js"

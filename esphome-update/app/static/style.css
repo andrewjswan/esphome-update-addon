@@ -37,9 +37,13 @@ body {
   font-size: 12px;
 }
 
-a, a:visited, a:hover, a:focus, a:active {
-    color: var(--dt-text-color);
-    text-decoration: none;
+a,
+a:visited,
+a:hover,
+a:focus,
+a:active {
+  color: var(--dt-text-color);
+  text-decoration: none;
 }
 
 .material-icons {
@@ -75,7 +79,8 @@ table {
   padding: var(--dt-padding) var(--dt-padding);
 }
 
-th, td {
+th,
+td {
   padding: var(--dt-padding) var(--dt-padding);
 }
 
@@ -190,7 +195,6 @@ tbody tr .online::before {
 tbody tr .offline::before {
   background-color: var(--dt-status-offline-color);
 }
-
 
 tbody tr .new::before {
   background-color: var(--dt-status-offline-color);

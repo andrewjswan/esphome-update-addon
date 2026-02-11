@@ -11,14 +11,13 @@
 [![GitHub License](https://img.shields.io/github/license/andrewjswan/esphome-update-addon?color=blue)](https://github.com/andrewjswan/esphome-update-addon/blob/master/LICENSE)
 [![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
-**ESPHome Update Server** - monitors your device configurations in the ESPHome folder, and with each change, builds them into a ready-made firmware for [OTA Update via HTTP Request](https://esphome.io/components/update/http_request.html). 
+**ESPHome Update Server** - monitors your device configurations in the ESPHome folder, and with each change, builds them into a ready-made firmware for [OTA Update via HTTP Request](https://esphome.io/components/update/http_request.html).
 
 The firmware storage is located in `\addon_configs\esphome-update\`
 
 ## Architecture
 
 ![Supports amd64 Architecture][amd64-shield] ![Supports aarch64 Architecture][aarch64-shield] ![Supports armv7 Architecture][armv7-shield] ![Supports armhf Architecture][armhf-shield] ![Supports i386 Architecture][i386-shield]
-
 
 ## Installation
 

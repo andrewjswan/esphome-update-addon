@@ -178,7 +178,7 @@ def load_config() -> None:
 
 def esphome_version() -> None:
     """Get ESPHome version."""
-    esphome = subprocess.run(  # noqa: S603
+    esphome = subprocess.run(
         ["docker", "exec", "addon_" + addon_config["esphome_domain"], "esphome", "version"],  # noqa: S607
         capture_output=True,
         check=False,
@@ -411,7 +411,7 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                     need_store = "-"
                 else:
                     need_store = ""
-                build = subprocess.run(  # noqa: S603
+                build = subprocess.run(
                     [
                         MAKE_FILE,
                         COMPILE,
