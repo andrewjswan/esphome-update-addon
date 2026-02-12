@@ -6,4 +6,3 @@
 
 bashio::log.info "Starting NGinx..."
 exec nginx
-
