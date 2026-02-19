@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026.2.1 - 2026-02-19
+
+- Update for ESPHome 2026.2.0
+- Bump `pillow` from 10.4.0 to 12.1.1
+
 ## 2025.11.1 - 2025-11-16
 
 - Remove deprecated `codenotary` fields
