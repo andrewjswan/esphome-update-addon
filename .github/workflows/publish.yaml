@@ -20,6 +20,8 @@ jobs:
       slug: ${{ steps.information.outputs.slug }}
       target: ${{ steps.information.outputs.target }}
       version: ${{ steps.version.outputs.version }}
+    permissions:
+      contents: read
     steps:
       - name: ⤵️ Check out code from GitHub
         uses: actions/checkout@v6
@@ -46,6 +48,8 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - information
+    permissions:
+      contents: write
     steps:
       - name: 🚀 Dispatch Repository Updater update signal
         uses: peter-evans/repository-dispatch@v4
