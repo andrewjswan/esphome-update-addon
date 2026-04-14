@@ -5,15 +5,15 @@ FROM $BUILD_FROM
 # Packages
 RUN \
   apk add --no-cache \
-    python3-dev=~3.12 \
-    py3-pip=~25.1 \
-    libmagic=~5.46
+    python3-dev \
+    py3-pip \
+    libmagic
 
 RUN \
   apk add --no-cache --virtual .build-dependencies \
-    build-base=~0.5 \
-    git=~2.49 \
-    docker=~28.3 \
+    build-base \
+    git \
+    docker \
     nginx
 
 # Prepare
