@@ -86,9 +86,9 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     permissions:
-      contents: read # To check out the code
-      id-token: write # Write needed for Cosign signing (issue OIDC token for signing)
-      packages: write # To push built images to GitHub Container Registry      
+      contents: read
+      id-token: write
+      packages: write
     steps:
       - name: Git Checkout
         uses: actions/checkout@v6
