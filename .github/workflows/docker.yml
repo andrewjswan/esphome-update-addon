@@ -61,11 +61,13 @@ jobs:
         with:
           arch: ${{ matrix.arch }}
           image: ${{ matrix.image }}
+          version: ${{ needs.init.outputs.version }}
           image-tags: |
             ${{ needs.init.outputs.version }}
             latest
-          push: "true"
-          version: ${{ needs.init.outputs.version }}
+          push: true
+          cosign: true
+          context: ./esphome-update
           container-registry-password: ${{ secrets.GITHUB_TOKEN }}
 
   manifest:
