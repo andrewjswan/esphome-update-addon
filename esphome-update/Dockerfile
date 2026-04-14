@@ -2,6 +2,11 @@
 ARG BUILD_FROM=ghcr.io/hassio-addons/base:stable
 FROM $BUILD_FROM
 
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+
+RUN echo "Docker builder running on $BUILDPLATFORM, building for $TARGETPLATFORM"
+
 # Packages
 RUN \
   apk add --no-cache \
@@ -69,7 +74,7 @@ RUN chmod a+x $(find "./etc/services.d" -type f -iname "*")
 
 WORKDIR /app
 
-# Copy data for add-on
+# Copy data for App
 COPY app .
 
 # Start ESPHome Update

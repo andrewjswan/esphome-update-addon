@@ -1,10 +1,10 @@
 <div align="center">
-<h1>ESPHome Update Add-on</h1>
+<h1>Home Assistant App: ESPHome Update</h1>
 </div>
 
 ## General
 
-[![ha addon_badge](https://img.shields.io/badge/HA-Addon-blue.svg)](https://developers.home-assistant.io/docs/add-ons)
+[![ha app_badge](https://img.shields.io/badge/HA-App-blue.svg)](https://developers.home-assistant.io/docs/add-ons)
 [![ESPHome Update](https://img.shields.io/badge/ESPHome-Update-blue.svg)](https://github.com/andrewjswan/esphome-update-addon/)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/andrewjswan/esphome-update-addon/build.yml?logo=github)](https://github.com/andrewjswan/esphome-update-addon/actions)
 [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/andrewjswan/esphome-update-addon?include_prereleases)](https://github.com/andrewjswan/esphome-update-addon/blob/master/esphome-update/CHANGELOG.md)

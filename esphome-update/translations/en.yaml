@@ -1,7 +1,7 @@
 configuration:
   esphome_domain_name:
-    name: ESPHome Add-on Domain Name
-    description: Domain name of the ESPHome Add-on, for performing firmware check and assembly.
+    name: ESPHome Builder App Domain Name
+    description: Domain name of the ESPHome Builder App, for performing firmware check and assembly.
 
   update_interval:
     name: Update interval

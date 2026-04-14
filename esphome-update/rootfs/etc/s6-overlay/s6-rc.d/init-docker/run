@@ -2,7 +2,7 @@
 # shellcheck shell=bash
 # shellcheck disable=SC2207
 # ==============================================================================
-# Home Assistant Community Add-on: Advanced SSH & Web Terminal
+# Home Assistant App: ESPHome Update
 # Enables Docker by moving the Docker executable in place.
 # ==============================================================================
 if bashio::var.false "$(bashio::addon.protected)"; then
