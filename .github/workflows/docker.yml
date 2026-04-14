@@ -67,6 +67,7 @@ jobs:
             latest
           push: true
           cosign: true
+          cache-gha: false
           context: ./esphome-update
           container-registry-password: ${{ secrets.GITHUB_TOKEN }}
 
