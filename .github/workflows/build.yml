@@ -97,13 +97,15 @@ jobs:
         uses: home-assistant/builder/actions/build-image@2026.03.2
         with:
           arch: ${{ matrix.arch }}
-          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
           image: ${{ matrix.image }}
+          version: ${{ needs.init.outputs.version }}
           image-tags: |
             ${{ needs.init.outputs.version }}
             latest
-          push: "false"
-          version: ${{ needs.init.outputs.version }}
+          push: false
+          cosign: false
+          context: ./esphome-update
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
 
   docker:
     name: Docker
