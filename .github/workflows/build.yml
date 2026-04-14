@@ -1,4 +1,4 @@
-name: ESPHome Update / Addon
+name: ESPHome Update / App
 
 on:
   push:
@@ -56,7 +56,7 @@ jobs:
         with:
           file_path: ./esphome-update/config.yaml
 
-      - name: Get Addon Information
+      - name: Get App Information
         id: info
         uses: home-assistant/actions/helpers/info@master
         with:

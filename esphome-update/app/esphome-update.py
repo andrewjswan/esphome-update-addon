@@ -3,7 +3,6 @@
 import asyncio
 import contextlib
 import datetime
-import fnmatch
 import hashlib
 import json
 import logging
@@ -69,11 +68,14 @@ LOGGER = logging.getLogger(__name__)
 
 def move_dir(src: str, dst: str, pattern: str = "*") -> bool:
     """Move files by Mask."""
+    src_path = Path(src)
+    dst_path = Path(dst)
     try:
-        if not Path(dst).is_dir():
-            Path(dst).mkdir(parents=True, exist_ok=True)
-        for f in fnmatch.filter(os.listdir(src), pattern):
-            shutil.move(Path(src) / f, Path(dst) / f)
+        if not dst_path.is_dir():
+            dst_path.mkdir(parents=True, exist_ok=True)
+        for file_path in src_path.glob(pattern):
+            shutil.move(file_path, dst_path / file_path.name)
+
     except Exception as e:
         LOGGER.exception("Error:", exc_info=e)
         return False
@@ -84,8 +86,9 @@ def move_dir(src: str, dst: str, pattern: str = "*") -> bool:
 def delete_files(src: str, pattern: str = "*") -> bool:
     """Delete files by Mask."""
     try:
-        for f in fnmatch.filter(os.listdir(src), pattern):
-            (Path(src) / f).unlink()
+        for file_path in Path(src).glob(pattern):
+            if file_path.is_file():
+                file_path.unlink()
     except Exception as e:
         LOGGER.exception("Error:", exc_info=e)
         return False
@@ -154,8 +157,8 @@ def logger_init() -> None:
 
 def load_config() -> None:
     """Load ESPHome Update settings."""
-    # Get ESPHome Add-On Domain Name
-    esphome_domain = os.getenv("ESPHOME_DOMAIN")  # ESPhome Add-on Domain Name
+    # Get ESPHome App Domain Name
+    esphome_domain = os.getenv("ESPHOME_DOMAIN")  # ESPhome App Domain Name
     if not esphome_domain:
         esphome_domain = "5c53de3b_esphome"
     addon_config["esphome_domain"] = esphome_domain
@@ -179,7 +182,7 @@ def load_config() -> None:
 def esphome_version() -> None:
     """Get ESPHome version."""
     esphome = subprocess.run(
-        ["docker", "exec", "addon_" + addon_config["esphome_domain"], "esphome", "version"],  # noqa: S607
+        ["docker", "exec", "addon_" + addon_config["esphome_domain"], "esphome", "version"],  # noqa: S603, S607
         capture_output=True,
         check=False,
     )
@@ -247,9 +250,9 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
     esphome_started = True
     esphome_version()
     if not addon_config["esphome_version"]:
-        LOGGER.debug("Look like ESPHome Add-on not started, try start...")
+        LOGGER.debug("Look like ESPHome Builder App not started, try start...")
         if not esphome_start():
-            LOGGER.debug("ESPHome addon start failed, skip...")
+            LOGGER.debug("ESPHome Builder App start failed, skip...")
             return
         esphome_version()
         esphome_started = False
@@ -264,221 +267,222 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
         return
     addon_config["esphome_hash"] = esphome_folder_md5
 
-    for file in sorted(os.listdir(ESPHOME_FOLDER)):
-        if file.lower().endswith(".yaml") and not file.lower().endswith("secrets.yaml"):
-            LOGGER.debug("ESPHome config file: %s", file)
-            file_path = Path(ESPHOME_FOLDER) / file
-            need_build = False
+    esphome_path = Path(ESPHOME_FOLDER)
+    for file_path in sorted(esphome_path.glob("*.yaml"), key=lambda x: x.name):
+        file = file_path.name
+        if file.lower() == "secrets.yaml":
+            continue
 
-            update_reason = "Automatic update " + (
+        LOGGER.debug("ESPHome config file: %s", file)
+        need_build = False
+
+        update_reason = "Automatic update " + (
+            datetime.datetime.now(tz=datetime.UTC)
+        ).astimezone().strftime("%Y-%m-%d %H:%M:%S")
+
+        if file not in esphome_devices:
+            file_info = {}
+            file_info["status"] = STATUS_NEW
+            file_info["name"] = ""
+            file_info["friendly_name"] = ""
+            file_info["comment"] = ""
+            file_info["author"] = ""
+            file_info["project"] = ""
+            file_info["version"] = addon_config["esphome_version"]
+            file_info["chip"] = ""
+            file_info["file"] = os.fspath(file_path)
+            file_info["build_path"] = "-"
+            file_info["time"] = ""
+            file_info["md5"] = ""
+            file_info["zzz"] = False
+            file_info["http_ota"] = False
+            file_info["esphome"] = addon_config["esphome_version"]
+            file_info["build"] = BUILD_NEW
+
+            esphome_devices[file] = file_info
+            update_reason = "New build " + (
                 datetime.datetime.now(tz=datetime.UTC)
             ).astimezone().strftime("%Y-%m-%d %H:%M:%S")
+            need_build = True
+            LOGGER.debug("Need build: Found new device configuration")
 
-            if file not in esphome_devices:
-                file_info = {}
-                file_info["status"] = STATUS_NEW
-                file_info["name"] = ""
-                file_info["friendly_name"] = ""
-                file_info["comment"] = ""
-                file_info["author"] = ""
-                file_info["project"] = ""
-                file_info["version"] = addon_config["esphome_version"]
-                file_info["chip"] = ""
-                file_info["file"] = os.fspath(file_path)
-                file_info["build_path"] = "-"
-                file_info["time"] = ""
-                file_info["md5"] = ""
-                file_info["zzz"] = False
-                file_info["http_ota"] = False
-                file_info["esphome"] = addon_config["esphome_version"]
-                file_info["build"] = BUILD_NEW
+        if esphome_devices[file]["build"] != BUILD_OK:
+            need_build = True
+            if esphome_devices[file]["build"] != BUILD_NEW:
+                LOGGER.debug("Need build: Previous build status: Failure")
 
-                esphome_devices[file] = file_info
-                update_reason = "New build " + (
-                    datetime.datetime.now(tz=datetime.UTC)
-                ).astimezone().strftime("%Y-%m-%d %H:%M:%S")
-                need_build = True
-                LOGGER.debug("Need build: Found new device configuration")
+        mod_time = (
+            (datetime.datetime.fromtimestamp(Path(file_path).stat().st_mtime, tz=datetime.UTC))
+            .astimezone()
+            .strftime("%Y%m%d%H%M%S")
+        )
+        if esphome_devices[file]["time"] != mod_time:
+            need_build = True
+            esphome_devices[file]["time"] = mod_time
+            LOGGER.debug("Need build: Configuration time changed")
 
-            if esphome_devices[file]["build"] != BUILD_OK:
-                need_build = True
-                if esphome_devices[file]["build"] != BUILD_NEW:
-                    LOGGER.debug("Need build: Previous build status: Failure")
-
-            mod_time = (
-                (datetime.datetime.fromtimestamp(Path(file_path).stat().st_mtime, tz=datetime.UTC))
-                .astimezone()
-                .strftime("%Y%m%d%H%M%S")
-            )
-            if esphome_devices[file]["time"] != mod_time:
-                need_build = True
-                esphome_devices[file]["time"] = mod_time
-                LOGGER.debug("Need build: Configuration time changed")
-
-            try:
-                CORE.reset()
-                CORE.verbose = False
-                CORE.config_path = file_path
-                with (
-                    contextlib.redirect_stderr(Path(os.devnull).open(mode="w")),
-                    contextlib.suppress(Exception),
-                ):
-                    config = read_config({})
-            except Exception as e:
-                config = None
-                LOGGER.exception("Error:", exc_info=e)
-
-            if config and "esphome" in config:
-                conf_md5 = config_md5(config)
-                if conf_md5 != esphome_devices[file]["md5"]:
-                    need_build = True
-                    LOGGER.debug(
-                        "Need build: Configuration MD5 changed %s - %s",
-                        esphome_devices[file]["md5"],
-                        conf_md5,
-                    )
-                esphome_devices[file]["md5"] = conf_md5
-
-                if "name" in config["esphome"]:
-                    esphome_devices[file]["name"] = config["esphome"]["name"]
-                if "comment" in config["esphome"]:
-                    esphome_devices[file]["comment"] = config["esphome"]["comment"]
-                if "friendly_name" in config["esphome"]:
-                    esphome_devices[file]["friendly_name"] = config["esphome"]["friendly_name"]
-                if "build_path" in config["esphome"]:
-                    esphome_devices[file]["build_path"] = config["esphome"]["build_path"]
-                if "project" in config["esphome"]:
-                    if "name" in config["esphome"]["project"]:
-                        name = config["esphome"]["project"]["name"].split(".")
-                        if len(name) == PROJECT_LEN:
-                            esphome_devices[file]["author"] = name[0]
-                            esphome_devices[file]["project"] = name[1].replace("_", " ")
-                    if "version" in config["esphome"]["project"]:
-                        version = config["esphome"]["project"]["version"]
-                        if (
-                            esphome_devices[file]["version"] != version
-                            and esphome_devices[file]["build"] != BUILD_NEW
-                        ):
-                            update_reason = (
-                                "Version bump from "
-                                + esphome_devices[file]["version"]
-                                + " to "
-                                + version
-                            )
-                            need_build = True
-                            LOGGER.debug(
-                                "Need build: Configuration version changed: %s - %s",
-                                esphome_devices[file]["version"],
-                                version,
-                            )
-                        esphome_devices[file]["version"] = version
-                    else:
-                        esphome_devices[file]["version"] = addon_config["esphome_version"]
-
-                if "esp32" in config:
-                    esphome_devices[file]["chip"] = ESP32
-                    if "variant" in config["esp32"]:
-                        esphome_devices[file]["chip"] = config["esp32"]["variant"]
-                if "esp8266" in config:
-                    esphome_devices[file]["chip"] = ESP8266
-
-                esphome_devices[file]["zzz"] = "deep_sleep" in config
-
-                http_update = (
-                    "update" in config
-                    and len(
-                        [
-                            item
-                            for item in config["update"]
-                            if "platform" in item and item["platform"] == "http_request"
-                        ],
-                    )
-                    > 0
-                )
-                if http_update != esphome_devices[file]["http_ota"]:
-                    need_build = True
-                    LOGGER.debug("Need build: Configuration OTA status changed")
-                esphome_devices[file]["http_ota"] = http_update
-            else:
-                esphome_devices[file]["build"] = BUILD_ERROR
-                need_build = False
-
-            if need_build and Path(MAKE_FILE).is_file():
-                esphome_devices[file]["status"] = STATUS_BUILD
-                if not addon_config["only_http_ota"] or (
-                    addon_config["only_http_ota"] and esphome_devices[file]["http_ota"]
-                ):
-                    need_store = "-"
-                else:
-                    need_store = ""
-                build = subprocess.run(
-                    [
-                        MAKE_FILE,
-                        COMPILE,
-                        file_path,
-                        esphome_devices[file]["name"],
-                        addon_config["esphome_domain"],
-                        esphome_devices[file]["build_path"],
-                        need_store,
-                    ],
-                    capture_output=True,
-                    check=False,
-                )
-                if build.returncode == 0:
-                    esphome_devices[file]["esphome"] = addon_config["esphome_version"]
-                    LOGGER.debug("Build complete!")
-                    if need_store == "":
-                        esphome_devices[file]["build"] = BUILD_OK
-                    elif move_dir(
-                        ESPHOME_UPDATE,
-                        ESPHOME_UPDATE_STORAGE,
-                        esphome_devices[file]["name"] + "*.bin",
-                    ):
-                        ota = {}
-                        ota["path"] = esphome_devices[file]["name"] + "-firmware.ota.bin"
-                        ota["md5"] = md5(ESPHOME_UPDATE_STORAGE + ota["path"])
-                        ota["summary"] = update_reason
-
-                        build = {}
-                        build["chipFamily"] = esphome_devices[file]["chip"]
-                        build["ota"] = ota
-
-                        builds = []
-                        builds.append(build)
-
-                        manifest = {}
-                        manifest["name"] = esphome_devices[file]["name"]
-                        manifest["version"] = esphome_devices[file]["version"]
-                        manifest["home_assistant_domain"] = ESPHOME
-                        manifest["new_install_prompt_erase"] = False
-                        manifest["builds"] = builds
-
-                        json_manifest = json.dumps(manifest, indent=2)
-                        with Path(
-                            ESPHOME_UPDATE_STORAGE
-                            + esphome_devices[file]["name"]
-                            + "-manifest.json",
-                        ).open(mode="w") as outfile:
-                            outfile.write(json_manifest)
-
-                        esphome_devices[file]["build"] = BUILD_OK
-                        LOGGER.debug("Store complete.")
-                    else:
-                        esphome_devices[file]["build"] = BUILD_COPY
-                        LOGGER.debug("Store ERROR!")
-                else:
-                    esphome_devices[file]["build"] = build.returncode
-                    LOGGER.debug(build.stderr.decode("utf-8"))
-
-                esphome_devices[file]["status"] = STATUS_COMPLETE
-
-            if (
-                addon_config["auto_clean"]
-                and addon_config["only_http_ota"]
-                and file in esphome_devices
-                and not esphome_devices[file]["http_ota"]
+        try:
+            CORE.reset()
+            CORE.verbose = False
+            CORE.config_path = file_path
+            with (
+                contextlib.redirect_stderr(Path(os.devnull).open(mode="w")),
+                contextlib.suppress(Exception),
             ):
-                delete_from_storage(esphome_devices[file]["name"])
+                config = read_config({})
+        except Exception as e:
+            config = None
+            LOGGER.exception("Error:", exc_info=e)
+
+        if config and "esphome" in config:
+            conf_md5 = config_md5(config)
+            if conf_md5 != esphome_devices[file]["md5"]:
+                need_build = True
+                LOGGER.debug(
+                    "Need build: Configuration MD5 changed %s - %s",
+                    esphome_devices[file]["md5"],
+                    conf_md5,
+                )
+            esphome_devices[file]["md5"] = conf_md5
+
+            if "name" in config["esphome"]:
+                esphome_devices[file]["name"] = config["esphome"]["name"]
+            if "comment" in config["esphome"]:
+                esphome_devices[file]["comment"] = config["esphome"]["comment"]
+            if "friendly_name" in config["esphome"]:
+                esphome_devices[file]["friendly_name"] = config["esphome"]["friendly_name"]
+            if "build_path" in config["esphome"]:
+                esphome_devices[file]["build_path"] = config["esphome"]["build_path"]
+            if "project" in config["esphome"]:
+                if "name" in config["esphome"]["project"]:
+                    name = config["esphome"]["project"]["name"].split(".")
+                    if len(name) == PROJECT_LEN:
+                        esphome_devices[file]["author"] = name[0]
+                        esphome_devices[file]["project"] = name[1].replace("_", " ")
+                if "version" in config["esphome"]["project"]:
+                    version = config["esphome"]["project"]["version"]
+                    if (
+                        esphome_devices[file]["version"] != version
+                        and esphome_devices[file]["build"] != BUILD_NEW
+                    ):
+                        update_reason = (
+                            "Version bump from "
+                            + esphome_devices[file]["version"]
+                            + " to "
+                            + version
+                        )
+                        need_build = True
+                        LOGGER.debug(
+                            "Need build: Configuration version changed: %s - %s",
+                            esphome_devices[file]["version"],
+                            version,
+                        )
+                    esphome_devices[file]["version"] = version
+                else:
+                    esphome_devices[file]["version"] = addon_config["esphome_version"]
+
+            if "esp32" in config:
+                esphome_devices[file]["chip"] = ESP32
+                if "variant" in config["esp32"]:
+                    esphome_devices[file]["chip"] = config["esp32"]["variant"]
+            if "esp8266" in config:
+                esphome_devices[file]["chip"] = ESP8266
+
+            esphome_devices[file]["zzz"] = "deep_sleep" in config
+
+            http_update = (
+                "update" in config
+                and len(
+                    [
+                        item
+                        for item in config["update"]
+                        if "platform" in item and item["platform"] == "http_request"
+                    ],
+                )
+                > 0
+            )
+            if http_update != esphome_devices[file]["http_ota"]:
+                need_build = True
+                LOGGER.debug("Need build: Configuration OTA status changed")
+            esphome_devices[file]["http_ota"] = http_update
+        else:
+            esphome_devices[file]["build"] = BUILD_ERROR
+            need_build = False
+
+        if need_build and Path(MAKE_FILE).is_file():
+            esphome_devices[file]["status"] = STATUS_BUILD
+            if not addon_config["only_http_ota"] or (
+                addon_config["only_http_ota"] and esphome_devices[file]["http_ota"]
+            ):
+                need_store = "-"
+            else:
+                need_store = ""
+            build = subprocess.run(
+                [
+                    MAKE_FILE,
+                    COMPILE,
+                    file_path,
+                    esphome_devices[file]["name"],
+                    addon_config["esphome_domain"],
+                    esphome_devices[file]["build_path"],
+                    need_store,
+                ],  # S603
+                capture_output=True,
+                check=False,
+            )
+            if build.returncode == 0:
+                esphome_devices[file]["esphome"] = addon_config["esphome_version"]
+                LOGGER.debug("Build complete!")
+                if need_store == "":
+                    esphome_devices[file]["build"] = BUILD_OK
+                elif move_dir(
+                    ESPHOME_UPDATE,
+                    ESPHOME_UPDATE_STORAGE,
+                    esphome_devices[file]["name"] + "*.bin",
+                ):
+                    ota = {}
+                    ota["path"] = esphome_devices[file]["name"] + "-firmware.ota.bin"
+                    ota["md5"] = md5(ESPHOME_UPDATE_STORAGE + ota["path"])
+                    ota["summary"] = update_reason
+
+                    build = {}
+                    build["chipFamily"] = esphome_devices[file]["chip"]
+                    build["ota"] = ota
+
+                    builds = []
+                    builds.append(build)
+
+                    manifest = {}
+                    manifest["name"] = esphome_devices[file]["name"]
+                    manifest["version"] = esphome_devices[file]["version"]
+                    manifest["home_assistant_domain"] = ESPHOME
+                    manifest["new_install_prompt_erase"] = False
+                    manifest["builds"] = builds
+
+                    json_manifest = json.dumps(manifest, indent=2)
+                    with Path(
+                        ESPHOME_UPDATE_STORAGE + esphome_devices[file]["name"] + "-manifest.json",
+                    ).open(mode="w") as outfile:
+                        outfile.write(json_manifest)
+
+                    esphome_devices[file]["build"] = BUILD_OK
+                    LOGGER.debug("Store complete.")
+                else:
+                    esphome_devices[file]["build"] = BUILD_COPY
+                    LOGGER.debug("Store ERROR!")
+            else:
+                esphome_devices[file]["build"] = build.returncode
+                LOGGER.debug(build.stderr.decode("utf-8"))
+
+            esphome_devices[file]["status"] = STATUS_COMPLETE
+
+        if (
+            addon_config["auto_clean"]
+            and addon_config["only_http_ota"]
+            and file in esphome_devices
+            and not esphome_devices[file]["http_ota"]
+        ):
+            delete_from_storage(esphome_devices[file]["name"])
 
     LOGGER.debug("Cleanup configuration list...")
     for file in list(esphome_devices):

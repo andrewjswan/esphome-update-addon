@@ -1,25 +1,25 @@
 #!/usr/bin/with-contenv bashio
 
 # ==============================================================================
-# Home Assistant ESPHome Update Add-on
-# Displays a simple add-on banner on startup
+# Home Assistant App: ESPHome Update
+# Displays a simple App banner on startup
 # ==============================================================================
 
 if bashio::supervisor.ping; then
   bashio::log.blue \
     '-----------------------------------------------------------'
-  bashio::log.blue " Add-on: $(bashio::addon.name)"
+  bashio::log.blue " App: $(bashio::addon.name)"
   bashio::log.blue " $(bashio::addon.description)"
   bashio::log.blue \
     '-----------------------------------------------------------'
-  bashio::log.blue " Add-on version: $(bashio::addon.version)"
+  bashio::log.blue " App version: $(bashio::addon.version)"
   if bashio::var.true "$(bashio::addon.update_available)"; then
-    bashio::log.magenta ' There is an update available for this add-on!'
+    bashio::log.magenta ' There is an update available for this App!'
     bashio::log.magenta \
-        " Latest add-on version: $(bashio::addon.version_latest)"
+        " Latest App version: $(bashio::addon.version_latest)"
     bashio::log.magenta ' Please consider upgrading as soon as possible.'
   else
-    bashio::log.green ' You are running the latest version of this add-on.'
+    bashio::log.green ' You are running the latest version of this App.'
   fi
 
   bashio::log.blue " System: $(bashio::info.operating_system)" \
@@ -77,7 +77,7 @@ if bashio::config.has_value 'log_level'; then
   export LOG_LEVEL=$(bashio::config 'log_level')
 fi
 
-bashio::log.blue "  Prepare add-on folder..."
+bashio::log.blue "  Prepare App folder..."
 mkdir -p /config/addons_config/esphome-update
 mkdir -p /addon_configs/esphome-update/
 

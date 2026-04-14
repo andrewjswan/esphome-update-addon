@@ -9,7 +9,7 @@ env:
 
 jobs:
   init:
-    name: Addon / Init
+    name: App / Init
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.yaml.outputs.version }}
@@ -27,7 +27,7 @@ jobs:
         with:
           file_path: ${{ github.workspace }}/esphome-update/config.yaml
 
-      - name: Get Addon Information
+      - name: Get App Information
         id: info
         uses: home-assistant/actions/helpers/info@master
         with:

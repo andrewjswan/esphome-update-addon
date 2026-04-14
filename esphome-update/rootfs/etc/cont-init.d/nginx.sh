@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bashio
 # ==============================================================================
-# Configure NGINX for use with RSSHub
+# Configure NGINX for use with ESPHome Update
 # ==============================================================================
 ingress_entry=$(bashio::addon.ingress_entry)
 
