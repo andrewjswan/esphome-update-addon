@@ -3,7 +3,6 @@
 import asyncio
 import contextlib
 import datetime
-import fnmatch
 import hashlib
 import json
 import logging
@@ -76,12 +75,13 @@ def move_dir(src: str, dst: str, pattern: str = "*") -> bool:
             dst_path.mkdir(parents=True, exist_ok=True)
         for file_path in src_path.glob(pattern):
             shutil.move(file_path, dst_path / file_path.name)
-            
+
     except Exception as e:
         LOGGER.exception("Error:", exc_info=e)
         return False
     else:
         return True
+
 
 def delete_files(src: str, pattern: str = "*") -> bool:
     """Delete files by Mask."""
@@ -94,6 +94,7 @@ def delete_files(src: str, pattern: str = "*") -> bool:
         return False
     else:
         return True
+
 
 def delete_from_storage(name: str) -> None:
     """Delete data from ESPHome Update storage."""
@@ -425,7 +426,7 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
                     addon_config["esphome_domain"],
                     esphome_devices[file]["build_path"],
                     need_store,
-                ],  # noqa S603
+                ],  # S603
                 capture_output=True,
                 check=False,
             )
@@ -460,9 +461,7 @@ def work() -> None:  # noqa: C901 PLR0912 PLR0915
 
                     json_manifest = json.dumps(manifest, indent=2)
                     with Path(
-                        ESPHOME_UPDATE_STORAGE
-                        + esphome_devices[file]["name"]
-                        + "-manifest.json",
+                        ESPHOME_UPDATE_STORAGE + esphome_devices[file]["name"] + "-manifest.json",
                     ).open(mode="w") as outfile:
                         outfile.write(json_manifest)
 
