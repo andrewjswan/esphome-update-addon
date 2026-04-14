@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026.4.1 - 2026-04-14
+
+- Update for ESPHome 2026.3.3
+- Migrate to new HA App system
+
 ## 2026.2.1 - 2026-02-19
 
 - Update for ESPHome 2026.2.0
