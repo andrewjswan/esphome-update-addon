@@ -1,6 +1,6 @@
 ---
 name: ESPHome Update
-version: 2026.2.1
+version: 2026.4.1
 slug: esphome-update
 description: ESPHome Update Server
 url: https://github.com/andrewjswan/esphome-update-addon/
@@ -9,7 +9,7 @@ arch:
   - amd64
   - aarch64
 
-image: ghcr.io/andrewjswan/esphome-update-addon-{arch}
+image: ghcr.io/andrewjswan/esphome-update-addon
 
 startup: application
 boot: auto
