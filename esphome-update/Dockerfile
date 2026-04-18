@@ -11,8 +11,7 @@ RUN echo "Docker builder running on $BUILDPLATFORM, building for $TARGETPLATFORM
 RUN \
   apk add --no-cache \
     python3-dev \
-    py3-pip \
-    libmagic
+    py3-pip
 
 RUN \
   apk add --no-cache --virtual .build-dependencies \

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.4.5 - 2026-04-17
+
+- The dependency on ESPHome Builder has been removed. All actions are now performed by the App.
+
 ## 2026.4.3 - 2026-04-14
 
 - Migrate to HA App system

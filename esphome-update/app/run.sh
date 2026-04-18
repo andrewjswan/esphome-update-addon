@@ -81,9 +81,6 @@ bashio::log.blue "  Prepare App folder..."
 mkdir -p /config/addons_config/esphome-update
 mkdir -p /addon_configs/esphome-update/
 
-bashio::log.blue "  Prepare make script..."
-cp /app/make.sh /config/addons_config/esphome-update/
-
 bashio::log.info 'ESPHome Update Start'
 bashio::log.info
 
